@@ -1,4 +1,5 @@
 ﻿using BugTracker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Data
 {
@@ -6,7 +7,7 @@ namespace BugTracker.Data
     {
         public static void Initialize(ApplicationDbContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
             // Check if there are any bugs already in the database.
             if (context.Bugs.Any())
             {

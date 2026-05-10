@@ -28,7 +28,28 @@ public class BugService
 
         Console.WriteLine("SQLite дані з БД");
         var bugs = await _context.Bugs.ToListAsync();
-        await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(bugs));
+
+        if (bugs.Any())
+        {
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(bugs));
+        }
+
+        return bugs;
+    }
+
+    public async Task<List<Bug>> GetFilteredAsync(StatusEnum? status, PriorityEnum? priority, string? assignedTo)
+    {
+        var bugs = await GetAllAsync();
+
+        if (status.HasValue)
+            bugs = bugs.Where(b => b.Status == status.Value).ToList();
+
+        if (priority.HasValue)
+            bugs = bugs.Where(b => b.Priority == priority.Value).ToList();
+
+        if (!string.IsNullOrEmpty(assignedTo))
+            bugs = bugs.Where(b => b.AssignedTo.Contains(assignedTo, StringComparison.OrdinalIgnoreCase)).ToList();
+
         return bugs;
     }
 
