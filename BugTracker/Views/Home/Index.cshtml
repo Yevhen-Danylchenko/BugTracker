@@ -1,8 +1,101 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BugTracker.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Bug Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Bug Dashboard</h2>
+
+<p>
+    <a asp-controller="Home" asp-action="Create" class="btn btn-primary">Create New Bug</a>
+</p>
+
+<!-- Фільтри -->
+<form method="get" class="row mb-4">
+    <div class="col-md-3">
+        <label for="status" class="form-label">Статус</label>
+        <select name="status" id="status" class="form-select">
+            <option value="">-- Всі --</option>
+            @foreach (var s in Enum.GetValues(typeof(StatusEnum)))
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="priority" class="form-label">Пріоритет</label>
+        <select name="priority" id="priority" class="form-select">
+            <option value="">-- Всі --</option>
+            @foreach (var p in Enum.GetValues(typeof(PriorityEnum)))
+            {
+                <option value="@p">@p</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="assignedTo" class="form-label">Виконавець</label>
+        <input type="text" name="assignedTo" id="assignedTo" class="form-control" placeholder="Ім'я виконавця" />
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-secondary w-100">Фільтрувати</button>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Кількість багів по статусах</h4>
+        <ul class="list-group">
+            @foreach (var kvp in Model.StatsByStatus)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @kvp.Key
+                    <span class="badge bg-primary rounded-pill">@kvp.Value</span>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h4>Кількість критичних багів</h4>
+        <span class="badge bg-danger">@Model.CriticalCount</span>
+    </div>
 </div>
+
+<hr />
+
+<h4>Останні 5 змін</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Updated At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bug in Model.LastChanges)
+        {
+            <tr>
+                <td>@bug.Title</td>
+                <td>@bug.Priority</td>
+                <td>@bug.Status</td>
+                <td>@bug.AssignedTo</td>
+                <td>@bug.UpdatedAt.ToString("g")</td>
+                <td>
+                    <a asp-controller="Home" asp-action="Edit" asp-route-id="@bug.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <form asp-controller="Home" asp-action="Delete" asp-route-id="@bug.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+
+
